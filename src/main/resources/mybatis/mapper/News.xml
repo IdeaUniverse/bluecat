@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?><!DOCTYPE mapper  PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN'
+        'http://mybatis.org/dtd/mybatis-3-mapper.dtd'>
+<mapper namespace="com.github.ideauniverse.bluecat.dao.NewsDao">
+
+    <select id="queryAll" resultType="com.github.ideauniverse.bluecat.entity.News">
+        select
+            id, title, content, created_at
+        from news
+    </select>
+
+    <insert id="save" parameterType="com.github.ideauniverse.bluecat.entity.News">
+        insert into news (id, title, content)
+        values (#{news.id,jdbcType=CHAR}, #{news.title,jdbcType=VARCHAR}, #{news.content,jdbcType=VARCHAR})
+    </insert>
+
+    <update id="update" parameterType="com.github.ideauniverse.bluecat.entity.News">
+        update news
+        <set>
+            <if test="news.title != null">
+                title = #{news.title,jdbcType=VARCHAR},
+            </if>
+            <if test="news.content != null">
+                content = #{news.content,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{news.id,jdbcType=CHAR}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.String">
+        delete from news
+        where id = #{id,jdbcType=CHAR}
+    </delete>
+</mapper>
