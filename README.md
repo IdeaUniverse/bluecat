@@ -1,5 +1,5 @@
 # BlueCat
-
+![Image text](https://github.com/IdeaUniverse/bluecat/src/main/resources/static/bluecat.png)
 ### Introduction
 
 * 本项目思想类似前端MVVM。将当前活跃用户页面关注的数据存放于内存中，前端页面数据绑定内存中的数据
