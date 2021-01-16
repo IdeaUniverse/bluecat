@@ -3,11 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="https://unpkg.com/element-ui@2.13.0/lib/theme-chalk/index.css">
+    <style>
+        h4{
+            text-align: center;
+        }
+    </style>
     <title>BlueCat</title>
 </head>
 <body>
 <div id="app">
-    <h4>News List</h4>
+    <h4>News List ({{newsList.length}})</h4>
     <el-table
             :data="newsList"
             border
