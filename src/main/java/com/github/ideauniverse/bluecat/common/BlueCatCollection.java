@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 这个集合类为内存数据抽象，后期可改为操作内存数据库如Redis
+ * 这个集合类为内存数据抽象，将当前活跃用户页面关注的数据存放于此，后期可改为操作内存数据库如Redis
  * 这个集合对应数据库中某个表，集合中的元素对应表中的记录
  * 对本集合的操作，数据会通过 Spring AOP 同步至数据库和前端
  * @param <T>
