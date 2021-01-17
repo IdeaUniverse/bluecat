@@ -11,5 +11,7 @@ public class News extends BlueCatEntity{
 
     private String content;
 
+    private Integer likedNum;
+
     private LocalDateTime createdAt;
 }

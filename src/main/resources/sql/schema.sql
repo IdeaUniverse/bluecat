@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主机： mysql
--- 生成日期： 2021-01-15 14:53:37
+-- 生成日期： 2021-01-17 15:23:39
 -- 服务器版本： 5.7.26
 -- PHP 版本： 7.4.6
 
@@ -31,6 +31,7 @@ CREATE TABLE `news` (
   `id` char(36) COLLATE utf8_unicode_ci NOT NULL,
   `title` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
   `content` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
+  `liked_num` int(11) NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='新闻表';
 

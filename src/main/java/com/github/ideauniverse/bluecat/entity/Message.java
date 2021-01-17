@@ -11,5 +11,7 @@ public class Message{
 
     private String senderId;
 
+    private String receiverId;
+
     private Integer type;
 }

@@ -32,23 +32,25 @@ public class DaoAspect {
             if(newsDao.save(news) == 1) {
                 log.info("数据库添加成功!");
                 message.setContent(news);
-                message.setType(Constants.MESSAGE_TYPE_CREATE_NEWS);
+                message.setType(Constants.MESSAGE_TYPE_CREATE);
+                WebSocketManager.broadCast(message);
             }
         }else if("update".equals(methodName)){
             News news = (News)joinPoint.getArgs()[0];
             if(newsDao.update(news) == 1) {
                 log.info("数据库修改数据成功!");
                 message.setContent(news);
-                message.setType(Constants.MESSAGE_TYPE_UPDATE_NEWS);
+                message.setType(Constants.MESSAGE_TYPE_UPDATE);
+                WebSocketManager.broadCast(message);
             }
         }else if("deleteById".equals(methodName)){
             String newsId = (String)joinPoint.getArgs()[0];
             if(newsDao.deleteById(newsId) == 1 ){
                 log.info("数据库修删除据成功!");
                 message.setContent(newsId);
-                message.setType(Constants.MESSAGE_TYPE_DELETE_NEWS);
+                message.setType(Constants.MESSAGE_TYPE_DELETE);
+                WebSocketManager.broadCast(message);
             }
         }
-        WebSocketManager.broadCast(message);
     }
 }

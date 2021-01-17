@@ -35,7 +35,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Object> {
     private NewsService newsService;
 
     @Autowired
-    private BlueCatCollection collection;
+    private BlueCatCollection<News> collection;
 
     private WebSocketServerHandshaker handShaker;
 
@@ -66,23 +66,32 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Object> {
     }
 
     private void handleMessage(ChannelHandlerContext ctx, Message message){
-        // 连接请求
-//        BlueCatCollection collection = new BlueCatCollection();
-        if(message.getType() == Constants.MESSAGE_TYPE_CONNECT){
-            try{
-                WebSocketManager.channels.put(message.getSenderId(), ctx.channel());
-                List<News> newsList = newsService.queryAll();   // 查询数据
-                collection.setCollection(newsList);     // 把数据添加进集合
-                Message newsMessage = new Message();
-                newsMessage.setId(UUID.randomUUID().toString());
-                newsMessage.setContent(collection.getCollection());
-                newsMessage.setType(Constants.MESSAGE_TYPE_NEWS_LIST);
-                newsMessage.setSenderId(message.getSenderId());
-                WebSocketManager.sendMessage(newsMessage);
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-
+        if(message.getType() == Constants.MESSAGE_TYPE_HANDSHAKE){
+            String userId = UUID.randomUUID().toString();
+            WebSocketManager.channels.put(userId, ctx.channel());
+            Message newsMessage = new Message();
+            newsMessage.setId(UUID.randomUUID().toString());
+            newsMessage.setContent(userId);
+            newsMessage.setReceiverId(userId);
+            newsMessage.setType(Constants.MESSAGE_TYPE_HANDSHAKE);
+            WebSocketManager.sendMessage(newsMessage);
+        }else if(message.getType() == Constants.MESSAGE_TYPE_LIST){    // 前端查询事件
+            List<News> newsList = newsService.queryAll();   // 查询数据
+            collection.setCollection(newsList);     // 把数据添加进集合
+            Message newsMessage = new Message();
+            newsMessage.setId(UUID.randomUUID().toString());
+            newsMessage.setContent(collection.getCollection());
+            newsMessage.setType(Constants.MESSAGE_TYPE_LIST);
+            newsMessage.setReceiverId(message.getSenderId());
+            WebSocketManager.sendMessage(newsMessage);
+        }else if(message.getType() == Constants.MESSAGE_TYPE_CREATE){  // 前端创建事件
+            News news = JSON.parseObject(message.getContent().toString(), News.class);
+            collection.add(news);
+        } else if(message.getType() == Constants.MESSAGE_TYPE_UPDATE){  // 前端修改事件
+            News news = JSON.parseObject(message.getContent().toString(), News.class);
+            collection.update(news);
+        } else if(message.getType() == Constants.MESSAGE_TYPE_DELETE){  // 前端删除事件
+            collection.deleteById(message.getContent().toString());
         }
     }
 
@@ -144,13 +153,18 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Object> {
     }
 
     @Override
+    public void channelActive(ChannelHandlerContext ctx) {
+        log.info("client is active !");
+    }
+
+    @Override
     public void channelInactive(ChannelHandlerContext ctx) {
         log.warn("client is inactive !");
+        ctx.close();
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable e){
         log.error("netty exception caught, {}", e.getMessage());
-        ctx.close();
     }
 }

@@ -5,9 +5,7 @@
     <link rel="icon" href="bluecat.png">
     <link rel="stylesheet" href="https://unpkg.com/element-ui@2.13.0/lib/theme-chalk/index.css">
     <style>
-        h4{
-            text-align: center;
-        }
+        h4{text-align: center;}
     </style>
     <title>BlueCat</title>
 </head>
@@ -20,150 +18,48 @@
             style="width: 100%">
         <el-table-column
                 prop="id"
-                label="id">
+                label="Id">
         </el-table-column>
         <el-table-column
                 prop="title"
-                label="title">
+                label="Title">
         </el-table-column>
         <el-table-column
                 prop="content"
-                label="content">
+                label="Content">
         </el-table-column>
         <el-table-column
                 prop="createdAt"
-                label="createdAt">
+                label="Created At">
+        </el-table-column>
+        <el-table-column label="Like">
+            <template slot-scope="scope">
+                <el-button type="primary" icon="el-icon-star-on"
+                           @click="like(scope.row)">{{scope.row.likedNum}}</el-button>
+            </template>
         </el-table-column>
     </el-table>
 </div>
 <script src="https://unpkg.com/vue@2.6.11/dist/vue.min.js"></script>
 <script src="https://unpkg.com/element-ui@2.13.0/lib/index.js"></script>
+<script src="./bluecat.js" ></script>
 <script>
     window.onload = () => {
-        const WS_URL = `ws://${window.location.hostname}:8081`
-        const MESSAGE_TYPE = {
-            CONNECT: 1,
-            HEARTBEAT: 2,
-            NEWS_LIST: 3,
-            CREATE_NEWS: 4,
-            UPDATE_NEWS: 5,
-            DELETE_NEWS: 6
-        }
-        class Message {
-            constructor(id, content, senderId, type) {
-                this.id = id
-                this.content = content
-                this.senderId = senderId
-                this.type = type
-            }
-        }
-
-        class MessageEvent {
-            constructor(messageType, task) {
-                this.id = Date.now()
-                this.messageType = messageType   // 本事件监听的消息类型
-                this.task = task    // 任务函数
-            }
-
-            execute(message) {
-                if (this.messageType !== message.type) {
-                    return
-                }
-                this.task(message)
-            }
-        }
+        const wsUrl = `ws://${window.location.hostname}:8081`
+        const dataList = new BlueCat({wsUrl}).newCollection()
         new Vue({
             el: '#app',
             data() {
                 return {
-                    userId: 'user1',
-                    newsList: [],
-                    eventQueue: [],   // 事件队列
-                    ws: null,
-                    wsTimer: null
+                    newsList: dataList,
                 }
             },
             methods: {
-                initWebSocket() {
-                    const ws = new WebSocket(WS_URL)
-                    ws.onopen = () => {
-                        this.sendMessage(new Message(new Date().getTime(), null, this.userId, MESSAGE_TYPE.CONNECT))
-                        console.log('websocket 连接成功')
-                    };
-
-                    ws.onmessage = e => {
-                        const message = JSON.parse(e.data);
-                        // 收到消息后执行监听该类型消息的事件
-                        this.eventQueue.forEach(event => event.execute(message))
-                    };
-
-                    ws.onclose = () => {
-                        this.$message.error('websocket 连接关闭')
-                    };
-
-                    ws.onerror = e => {
-                        this.$message.error('websocket 发生错误')
-                        console.error(e)
-                    }
-                    this.ws = ws
-                    this.heartbeatCheck()
-                },
-                initEvents(){
-                    // 初次加载news列表事件
-                    this.registerMessageEvent(MESSAGE_TYPE.NEWS_LIST, message => {
-                        this.newsList = message.content
-                    })
-                    this.registerMessageEvent(MESSAGE_TYPE.CREATE_NEWS, message => {
-                        const news = message.content
-                        this.newsList.push(news)
-                    })
-                    this.registerMessageEvent(MESSAGE_TYPE.UPDATE_NEWS, message => {
-                        const news = message.content
-                        const index = this.newsList.findIndex(item => item.id === news.id)
-                        this.newsList.splice(index, 1, news)
-                    })
-                    this.registerMessageEvent(MESSAGE_TYPE.DELETE_NEWS, message => {
-                        const newsId = message.content
-                        this.newsList = this.newsList.filter(item => item.id !== newsId)
-                    })
-                },
-                sendMessage(message) {
-                    this.ws.send(JSON.stringify(message))
-                },
-                /**
-                 * 注册消息对应的事件
-                 * @param messageType
-                 * @param task
-                 */
-                registerMessageEvent(messageType, task) {
-                    this.eventQueue.push(new MessageEvent(messageType, task))
-                },
-                /**
-                 * 取消注册消息对应的事件
-                 * @param eventId
-                 */
-                unregisterMessageEvent(eventId){
-                    this.eventQueue = this.eventQueue.filter(e => e.id !== eventId)
-                },
-
-                //心跳
-                heartbeatCheck() {
-                    this.wsTimer = setInterval(() => {
-                        console.log('心跳检测')
-                        if (this.ws.readyState === WebSocket.CLOSED) {
-                            console.log('断线重连...')
-                            clearInterval(this.wsTimer)
-                            this.initWebSocket()
-                        }
-                    }, 5000)
+                like(news){
+                    news.likedNum += 1  // 这一句会直接同步到数据库
                 }
-            },
-            mounted() {
-                this.initWebSocket()
-                this.initEvents()
             }
         });
-
     }
 </script>
 </body>

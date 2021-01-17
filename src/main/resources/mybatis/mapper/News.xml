@@ -4,13 +4,14 @@
 
     <select id="queryAll" resultType="com.github.ideauniverse.bluecat.entity.News">
         select
-            id, title, content, created_at
+            id, title, content, liked_num, created_at
         from news
     </select>
 
     <insert id="save" parameterType="com.github.ideauniverse.bluecat.entity.News">
-        insert into news (id, title, content)
-        values (#{news.id,jdbcType=CHAR}, #{news.title,jdbcType=VARCHAR}, #{news.content,jdbcType=VARCHAR})
+        insert into news (id, title, content, liked_num)
+        values (#{news.id,jdbcType=CHAR}, #{news.title,jdbcType=VARCHAR},
+                #{news.content,jdbcType=VARCHAR}), #{news.likedNum,jdbcType=INTEGER})
     </insert>
 
     <update id="update" parameterType="com.github.ideauniverse.bluecat.entity.News">
@@ -21,6 +22,9 @@
             </if>
             <if test="news.content != null">
                 content = #{news.content,jdbcType=VARCHAR},
+            </if>
+            <if test="news.likedNum != null">
+                liked_num = #{news.likedNum,jdbcType=INTEGER},
             </if>
         </set>
         where id = #{news.id,jdbcType=CHAR}
