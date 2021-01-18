@@ -5,8 +5,6 @@ import java.util.List;
 
 public interface NewsService {
 
-    List<News> queryAll();
-
     int save(News news);
 
     int update(News news);

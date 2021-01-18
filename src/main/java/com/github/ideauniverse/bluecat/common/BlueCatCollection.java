@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 这个集合类为内存数据抽象，将当前活跃用户页面关注的数据存放于此，后期可改为操作内存数据库如Redis
+ * 这个集合类为内存数据抽象，将当前活跃用户关注的数据存放于此，后期可改为内存数据库如 Redis
  * 这个集合对应数据库中某个表，集合中的元素对应表中的记录
  * 对本集合的操作，数据会通过 Spring AOP 同步至数据库和前端
  * @param <T>
@@ -15,12 +15,24 @@ import java.util.stream.Collectors;
 @Component
 public class BlueCatCollection <T extends BlueCatEntity>{
 
+    /**
+     * 内置集合（暂未考虑线程安全）
+     */
     private List<T> dataList = new ArrayList<>();
 
+    /**
+     * 增加元素
+     * @param e
+     */
     public void add(T e){
         dataList.add(e);
     }
 
+    /**
+     * 更新元素
+     * @param e
+     * @return
+     */
     public int update(T e){
         dataList = dataList.stream()
                 .map(item -> item.getId().equals(e.getId()) ? e : item)
@@ -28,6 +40,11 @@ public class BlueCatCollection <T extends BlueCatEntity>{
         return 1;
     }
 
+    /**
+     * 根据元素 id 删除元素
+     * @param id 元素 id
+     * @return
+     */
     public int deleteById(String id){
         dataList = dataList.stream()
                 .filter(item -> !item.getId().equals(id))
@@ -35,10 +52,18 @@ public class BlueCatCollection <T extends BlueCatEntity>{
         return 1;
     }
 
-    public List<? extends BlueCatEntity> getCollection(){
+    /**
+     * 获取集合
+     * @return
+     */
+    public List<T> getCollection(){
         return dataList;
     }
 
+    /**
+     * 设置集合
+     * @param collection
+     */
     public void setCollection(List<T> collection){
         dataList = collection;
     }

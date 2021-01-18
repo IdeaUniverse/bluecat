@@ -2,12 +2,12 @@ package com.github.ideauniverse.bluecat.netty;
 
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.github.ideauniverse.bluecat.common.BlueCatCollection;
 import com.github.ideauniverse.bluecat.common.Constants;
-import com.github.ideauniverse.bluecat.entity.BlueCatEntity;
+import com.github.ideauniverse.bluecat.dao.NewsDao;
 import com.github.ideauniverse.bluecat.entity.Message;
 import com.github.ideauniverse.bluecat.entity.News;
-import com.github.ideauniverse.bluecat.service.NewsService;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
@@ -32,7 +32,7 @@ import java.util.UUID;
 public class NettyServerHandler extends SimpleChannelInboundHandler<Object> {
 
     @Autowired
-    private NewsService newsService;
+    private NewsDao newsDao;
 
     @Autowired
     private BlueCatCollection<News> collection;
@@ -61,24 +61,29 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Object> {
         }
         //返回应答消息
         //获取客户端向服务端发送的消息
-        Message message = JSON.parseObject(((TextWebSocketFrame) frame).text(), Message.class);
+        Message<?> message = JSON.parseObject(((TextWebSocketFrame) frame).text(), new TypeReference<>(){});
         handleMessage(ctx, message);
     }
 
-    private void handleMessage(ChannelHandlerContext ctx, Message message){
+    /**
+     * WebSocket 消息处理
+     * @param ctx
+     * @param message
+     */
+    private void handleMessage(ChannelHandlerContext ctx, Message<?> message){
         if(message.getType() == Constants.MESSAGE_TYPE_HANDSHAKE){
             String userId = UUID.randomUUID().toString();
             WebSocketManager.channels.put(userId, ctx.channel());
-            Message newsMessage = new Message();
+            Message<String> newsMessage = new Message<>();
             newsMessage.setId(UUID.randomUUID().toString());
             newsMessage.setContent(userId);
             newsMessage.setReceiverId(userId);
             newsMessage.setType(Constants.MESSAGE_TYPE_HANDSHAKE);
             WebSocketManager.sendMessage(newsMessage);
         }else if(message.getType() == Constants.MESSAGE_TYPE_LIST){    // 前端查询事件
-            List<News> newsList = newsService.queryAll();   // 查询数据
+            List<News> newsList = newsDao.queryAll();   // 查询数据
             collection.setCollection(newsList);     // 把数据添加进集合
-            Message newsMessage = new Message();
+            Message<List<News>> newsMessage = new Message<>();
             newsMessage.setId(UUID.randomUUID().toString());
             newsMessage.setContent(collection.getCollection());
             newsMessage.setType(Constants.MESSAGE_TYPE_LIST);
@@ -93,11 +98,6 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Object> {
         } else if(message.getType() == Constants.MESSAGE_TYPE_DELETE){  // 前端删除事件
             collection.deleteById(message.getContent().toString());
         }
-    }
-
-    private void sendMessage(Channel channel, Message message){
-        TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(JSON.toJSONString(message));
-        channel.writeAndFlush(textWebSocketFrame);
     }
 
     /**

@@ -11,7 +11,7 @@
     <insert id="save" parameterType="com.github.ideauniverse.bluecat.entity.News">
         insert into news (id, title, content, liked_num)
         values (#{news.id,jdbcType=CHAR}, #{news.title,jdbcType=VARCHAR},
-                #{news.content,jdbcType=VARCHAR}), #{news.likedNum,jdbcType=INTEGER})
+                #{news.content,jdbcType=VARCHAR}, #{news.likedNum,jdbcType=INTEGER})
     </insert>
 
     <update id="update" parameterType="com.github.ideauniverse.bluecat.entity.News">

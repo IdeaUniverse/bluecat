@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * 新闻业务 Service
+ */
 @Service
 public class NewsServiceImpl implements NewsService {
 
@@ -18,11 +21,11 @@ public class NewsServiceImpl implements NewsService {
     @Autowired
     private BlueCatCollection<News> collection;
 
-    @Override
-    public List<News> queryAll() {
-        return newsDao.queryAll();
-    }
-
+    /**
+     * 保存新闻
+     * @param news
+     * @return
+     */
     @Override
     public int save(News news) {
         news.setId(UUID.randomUUID().toString());
@@ -30,11 +33,21 @@ public class NewsServiceImpl implements NewsService {
         return collection.getCollection().size();
     }
 
+    /**
+     * 修改新闻
+     * @param news
+     * @return
+     */
     @Override
     public int update(News news) {
         return collection.update(news);
     }
 
+    /**
+     * 删除新闻
+     * @param id
+     * @return
+     */
     @Override
     public int deleteById(String id) {
         return collection.deleteById(id);

@@ -4,6 +4,9 @@ import com.github.ideauniverse.bluecat.entity.News;
 import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
+/**
+ * 数据库访问接口
+ */
 public interface NewsDao {
 
     List<News> queryAll();

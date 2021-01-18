@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * netty服务初始化器
+ * Netty 服务初始化器
  **/
 @Component
 public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> {
