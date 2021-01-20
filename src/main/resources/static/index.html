@@ -12,10 +12,7 @@
 <body>
 <div id="app">
     <h4>News List ({{newsList.length}})</h4>
-    <el-table
-            :data="newsList"
-            border
-            style="width: 100%">
+    <el-table :data="newsList" border>
         <el-table-column
                 prop="id"
                 label="Id">
@@ -45,13 +42,14 @@
 <script src="./bluecat.js" ></script>
 <script>
     window.onload = () => {
-        const wsUrl = `ws://${window.location.hostname}:8081`
-        const dataList = new BlueCat({wsUrl}).newCollection()
+        const wsUrl = `ws://${window.location.hostname}:8081/data-source`
+        // 声明 news 数据源
+        const newsList = new BlueCat({wsUrl}).newCollection()
         new Vue({
             el: '#app',
             data() {
                 return {
-                    newsList: dataList,
+                    newsList,
                 }
             },
             methods: {

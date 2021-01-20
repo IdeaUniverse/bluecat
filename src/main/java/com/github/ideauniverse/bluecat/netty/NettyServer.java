@@ -8,7 +8,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import java.net.InetSocketAddress;
@@ -21,18 +20,16 @@ import java.net.InetSocketAddress;
 public class NettyServer implements CommandLineRunner {
 
     @Autowired
-    private ServerChannelInitializer serverChannelInitializer;
+    private NettyServerChannelInitializer nettyServerChannelInitializer;
 
     public void start() {
         InetSocketAddress socketAddress = new InetSocketAddress( 8081);
-        //new 一个主线程组
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-        //new 一个工作线程组
         EventLoopGroup workGroup = new NioEventLoopGroup();
         ServerBootstrap bootstrap = new ServerBootstrap()
                 .group(bossGroup, workGroup)
                 .channel(NioServerSocketChannel.class)
-                .childHandler(serverChannelInitializer)
+                .childHandler(nettyServerChannelInitializer)
                 .localAddress(socketAddress)
                 //设置队列大小
                 .option(ChannelOption.SO_BACKLOG, 1024)
